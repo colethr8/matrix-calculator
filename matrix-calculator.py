@@ -12,6 +12,7 @@ operations = {
 
 def main():
     # Print options
+    print("Operations:")
     print("1. Addition")
     print("2. Subtraction")
     print("3. Multiplication")
@@ -235,12 +236,27 @@ def invert(m):
     pass
 
 def det(m):
-    if len(m) == 2:
-        ad = m[0][0] * m[1][1]
-        bc = m[0][1] * m[1][0]
-        return ad - bc
+    if len(m) == 1:
+        return m[0][0]
+    elif len(m) == 2:
+        return (m[0][0] * m[1][1]) - (m[0][1] * m[1][0])
     else:
-        return 0
+        determinant = 0
+        for col in range(len(m[0])):
+            value = m[0][col]
+            new_matrix = []
+            for row in range(len(m)):
+                if row != 0:
+                    new_row = []
+                    for curr_col in range(len(m[row])):
+                        if curr_col != col:
+                            new_row.append(m[row][curr_col])
+                    new_matrix.append(new_row)
+            if col % 2 == 0:
+                determinant += value * det(new_matrix)
+            else:
+                determinant -= value * det(new_matrix)
+        return determinant
 
 def print_matrix(m):
     # obtained from https://stackoverflow.com/questions/13214809/pretty-print-2d-list

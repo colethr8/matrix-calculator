@@ -73,13 +73,21 @@ def main():
             pass
         # Transpose
         case 5:
-            pass
+            print("\nTranspose Matrix 1:")
+            print_matrix(transpose(matrix1))
         # Inverse
         case 6:
-            pass
+            if matrix1_rows != matrix1_cols or det(matrix1) == 0:
+                print("\nMatrix is not invertible!")
+            else:
+                print("\nInverse Matrix 1:")
+                print_matrix(invert(matrix1))
         # Determinant
         case 7:
-            pass
+            if matrix1_rows != matrix1_cols:
+                print("\nNon-square matrices do not have determinants!")
+            else:
+                print("\nDeterminant of Matrix 1 = " + str(det(matrix1)))
         case _:
             print("Something went wrong!")
             sys.exit()
@@ -203,11 +211,36 @@ def multiply(m1, m2):
 
     return product
 
+def rref():
+    pass
+
 def reduce_row(m, r):
     pass
 
 def swap_rows(m, r1, r2):
     pass
+
+def transpose(m):
+    new_matrix = []
+
+    for col in range(len(m[0])):
+        new_row = []
+        for row in range(len(m)):
+            new_row.append(m[row][col])
+        new_matrix.append(new_row)
+
+    return new_matrix
+
+def invert(m):
+    pass
+
+def det(m):
+    if len(m) == 2:
+        ad = m[0][0] * m[1][1]
+        bc = m[0][1] * m[1][0]
+        return ad - bc
+    else:
+        return 0
 
 def print_matrix(m):
     # obtained from https://stackoverflow.com/questions/13214809/pretty-print-2d-list

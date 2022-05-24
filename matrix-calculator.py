@@ -1,17 +1,5 @@
 import sys
-
-operations = {
-    1: "Addition",
-    2: "Subtraction",
-    3: "Multiplication",
-    4: "Reduced Row Echelon Form",
-    5: "Transpose",
-    6: "Inverse",
-    7: "Determinant",
-    8: "Null Space",
-    9: "Column Space",
-    10: "Row Space"
-}
+from fractions import Fraction
 
 def main():
     # Print options
@@ -27,20 +15,22 @@ def main():
     print("9. Null Space")
     print("10. Column Space")
     print("11. Row Space")
+    print("12. Rank")
+    operations = 12
 
     # Select operation
     while True:
         try:
             op = input("\nSelect an Operation: ")
-
             if op == "quit" or op == "exit":
                 sys.exit()
             else:
                 op = int(op)
-
+                if op > operations or op < 1:
+                    raise ValueError
             break
         except ValueError:
-            print("Please input a number 1-" + str(len(operations)))
+            print("Please input a number 1-" + str(operations))
     
     # Generate first matrix (always guaranteed)
     matrix1_rows = get_num_rows("1")
@@ -82,7 +72,8 @@ def main():
             print_matrix(ref(matrix1))
         # RREF
         case 5:
-            pass
+            print("\nMatrix 1 Reduced Row Echelon Form:")
+            print_matrix(rref(matrix1))
         # Transpose
         case 6:
             print("\nTranspose Matrix 1:")
@@ -105,6 +96,8 @@ def main():
         case 10:
             pass
         case 11:
+            pass
+        case 12:
             pass
         case _:
             print("Something went wrong!")
@@ -145,11 +138,13 @@ def get_num_cols(num):
     return matrix1_cols
 
 def input_matrix(rows, cols, num):
+    count = 1
     while True:
         try:
             matrix1 = []
             for row in range(rows):
-                row_input = input("Enter " + str(cols) + " columns of row " + str(row + 1) + " separated by spaces: ")
+                row_input = input("Enter " + str(cols) + " columns of row " + str(count) + " separated by spaces: ")
+                count += 1
 
                 if row_input == "quit" or row_input == "exit":
                     sys.exit()
@@ -190,6 +185,7 @@ def input_matrix(rows, cols, num):
         except ValueError:
             print("Invalid input. Please enter " + str(cols) + " numbers seperated by spaces.")
             print("For example: \"1 2 3 4\"")
+            count = count - 1
 
     return matrix1
 
@@ -292,8 +288,17 @@ def add_rows(m, r1, r2, scale):
 
 def rref(m):
     m_ref = ref(m)
-    for col in range(len(m[0])):
-        pass
+    for row in range(1, len(m)):
+        non_zero_col = -1
+        for col in range(1, len(m[row])):
+            if m[row][col] != 0:
+                non_zero_col = col
+                break
+        if non_zero_col > -1:
+            for current_row in range(row):
+                if m[current_row][non_zero_col] != 0:
+                    scale = -1 * (m[current_row][non_zero_col])
+                    m = add_rows(m, row, current_row, scale)
     return m_ref
 
 def transpose(m):
@@ -344,7 +349,7 @@ def det(m):
 
 def print_matrix(m):
     # obtained from https://stackoverflow.com/questions/13214809/pretty-print-2d-list
-    s = [[str(e) for e in row] for row in m]
+    s = [[str(Fraction(e)) for e in row] for row in m]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
     table = [fmt.format(*row) for row in s]

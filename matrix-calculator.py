@@ -3,7 +3,11 @@ import sys
 operations = {
     1: "Addition",
     2: "Subtraction",
-    3: "Multiplication"
+    3: "Multiplication",
+    4: "Reduced Row Echelon Form",
+    5: "Transpose",
+    6: "Inverse",
+    7: "Determinant"
 }
 
 def main():
@@ -11,6 +15,10 @@ def main():
     print("1. Addition")
     print("2. Subtraction")
     print("3. Multiplication")
+    print("4. Reduced Row Echelon Form")
+    print("5. Transpose")
+    print("6. Inverse")
+    print("7. Determinant")
 
     # Select operation
     while True:
@@ -60,6 +68,18 @@ def main():
             product = multiply(matrix1, matrix2)
             print("\nMatrix 1 * Matrix 2:")
             print_matrix(product)
+        # RREF
+        case 4:
+            pass
+        # Transpose
+        case 5:
+            pass
+        # Inverse
+        case 6:
+            pass
+        # Determinant
+        case 7:
+            pass
         case _:
             print("Something went wrong!")
             sys.exit()
@@ -170,7 +190,18 @@ def sub(m1, m2):
     return diff
 
 def multiply(m1, m2):
-    pass
+    product = []
+
+    for row in range(len(m1)):
+        new_row = []
+        for col in range(len(m2[0])):
+            value = 0
+            for curr_row in range(len(m2)):
+                value += m1[row][curr_row] * m2[curr_row][col]
+            new_row.append(value)
+        product.append(new_row)
+
+    return product
 
 def reduce_row(m, r):
     pass

@@ -7,7 +7,10 @@ operations = {
     4: "Reduced Row Echelon Form",
     5: "Transpose",
     6: "Inverse",
-    7: "Determinant"
+    7: "Determinant",
+    8: "Null Space",
+    9: "Column Space",
+    10: "Row Space"
 }
 
 def main():
@@ -16,10 +19,14 @@ def main():
     print("1. Addition")
     print("2. Subtraction")
     print("3. Multiplication")
-    print("4. Reduced Row Echelon Form")
-    print("5. Transpose")
-    print("6. Inverse")
-    print("7. Determinant")
+    print("4. Row Echelon Form")
+    print("5. Reduced Row Echelon Form")
+    print("6. Transpose")
+    print("7. Inverse")
+    print("8. Determinant")
+    print("9. Null Space")
+    print("10. Column Space")
+    print("11. Row Space")
 
     # Select operation
     while True:
@@ -69,26 +76,36 @@ def main():
             product = multiply(matrix1, matrix2)
             print("\nMatrix 1 * Matrix 2:")
             print_matrix(product)
-        # RREF
+        # REF
         case 4:
+            print("\nMatrix 1 Row Echelon Form:")
+            print_matrix(ref(matrix1))
+        # RREF
+        case 5:
             pass
         # Transpose
-        case 5:
+        case 6:
             print("\nTranspose Matrix 1:")
             print_matrix(transpose(matrix1))
         # Inverse
-        case 6:
+        case 7:
             if matrix1_rows != matrix1_cols or det(matrix1) == 0:
                 print("\nMatrix is not invertible!")
             else:
                 print("\nInverse Matrix 1:")
                 print_matrix(invert(matrix1))
         # Determinant
-        case 7:
+        case 8:
             if matrix1_rows != matrix1_cols:
                 print("\nNon-square matrices do not have determinants!")
             else:
                 print("\nDeterminant of Matrix 1 = " + str(det(matrix1)))
+        case 9:
+            pass
+        case 10:
+            pass
+        case 11:
+            pass
         case _:
             print("Something went wrong!")
             sys.exit()
@@ -152,6 +169,10 @@ def input_matrix(rows, cols, num):
 
             while True:
                 confirmation = input("Matrix " + num + " Correct? Y/N: ")
+
+                if confirmation == "quit" or confirmation == "exit":
+                    sys.exit()
+
                 confirmed = False
                 try:
                     if confirmation.lower() == "y" or confirmation.lower() == "yes":
@@ -212,18 +233,73 @@ def multiply(m1, m2):
 
     return product
 
-def rref():
-    pass
-
-def reduce_row(m, r):
-    pass
+def ref(m):
+    current_row = 0
+    # iterate over columns of m
+    for col in range(len(m[0])):
+        # find first non-zero row in column
+        first_non_zero_row = -1
+        for row in range(current_row, len(m)):
+            if m[row][col] != 0:
+                first_non_zero_row = row
+                break
+        # if column is in fact non zero
+        if first_non_zero_row > -1:
+            # if non-zero entry is not in current row, swap
+            if current_row != first_non_zero_row:
+                m = swap_rows(m, current_row, first_non_zero_row)
+            # reduce
+            try:
+                m = reduce_row(m, current_row)
+            except ValueError:
+                print("An error occurred")
+                sys.exit()
+            # get 0s underneath
+            for row in range(current_row + 1, len(m)):
+                if m[row][col] != 0:
+                    scale = -1 * (m[row][col])
+                    m = add_rows(m, current_row, row, scale)
+            current_row += 1
+    return m
 
 def swap_rows(m, r1, r2):
-    pass
+    # swaps r1 and r2 of matrix m, returning modified matrix
+    tmp = m[r1]
+    m[r1] = m[r2]
+    m[r2] = tmp
+    return m
+
+def reduce_row(m, r):
+    c = -1
+    for col in range(len(m[r])):
+        if m[r][col] != 0:
+            c = col
+            break
+    if c > -1:
+        scale = m[r][c]
+        for col in range(len(m[r])):
+            if m[r][col] != 0:
+                m[r][col] = m[r][col] / scale
+        return m
+    else:
+        raise ValueError
+
+def add_rows(m, r1, r2, scale):
+    # perform operation (scale * r1) + r2 and replace r2, returning modified matrix
+    for col in range(len(m[r1])):
+        m[r2][col] = (scale * m[r1][col]) + m[r2][col]
+    return m
+
+def rref(m):
+    m_ref = ref(m)
+    for col in range(len(m[0])):
+        pass
+    return m_ref
 
 def transpose(m):
     new_matrix = []
 
+    # make columns of m rows of new_matrix
     for col in range(len(m[0])):
         new_row = []
         for row in range(len(m)):
@@ -236,15 +312,21 @@ def invert(m):
     pass
 
 def det(m):
+    # base case of 1x1 - determinant is itself
     if len(m) == 1:
         return m[0][0]
+    # base case of 2x2 - determinant is (a*d) - (b*c)
     elif len(m) == 2:
         return (m[0][0] * m[1][1]) - (m[0][1] * m[1][0])
+    # otherwise need to recursively calculate with co-factor expansion
     else:
         determinant = 0
         for col in range(len(m[0])):
+            # value to multiply by
             value = m[0][col]
+            # initialize new matrix
             new_matrix = []
+            # build new matrix which removes the row and column of value
             for row in range(len(m)):
                 if row != 0:
                     new_row = []
@@ -252,10 +334,12 @@ def det(m):
                         if curr_col != col:
                             new_row.append(m[row][curr_col])
                     new_matrix.append(new_row)
+            # alternate signs and recursively calculate determinant with new matrix
             if col % 2 == 0:
                 determinant += value * det(new_matrix)
             else:
                 determinant -= value * det(new_matrix)
+        # return calculation
         return determinant
 
 def print_matrix(m):

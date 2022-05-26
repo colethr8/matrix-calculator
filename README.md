@@ -6,15 +6,16 @@ In order to input a matrix, simply begin by specifying the number of rows and co
 If an operation selected requires two matrices, you will then be prompted to input a second one, and calculation will begin.
 
 ## List of operations
-### 1. Addition
-### 2. Subtraction
-### 3. Multiplication
-### 4. Row Echelon Form
-### 5. Reduced Row Echelon Form
-### 6. Transpose
-### 7. Inverse
-### 8. Determinant
+1. Addition
+2. Subtraction
+3. Multiplication
+4. Row Echelon Form
+5. Reduced Row Echelon Form
+6. Transpose
+7. Inverse
+8. Determinant
 
+## Future Plans
 Hoping to add in the near future: column space, row space, rank, eigenvalues, eigenvectors, and diagonalization.
 
 Also on the to-do list: add further comments to explain process, refactor code for inverse at it is essentially the same as RREF code.

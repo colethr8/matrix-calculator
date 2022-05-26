@@ -12,11 +12,7 @@ def main():
     print("6. Transpose")
     print("7. Inverse")
     print("8. Determinant")
-    print("9. Null Space")
-    print("10. Column Space")
-    print("11. Row Space")
-    print("12. Rank")
-    operations = 12
+    operations = 8
 
     # Select operation
     while True:
@@ -32,9 +28,32 @@ def main():
         except ValueError:
             print("Please input a number 1-" + str(operations))
     
-    # Generate first matrix (always guaranteed)
-    matrix1_rows = get_num_rows("1")
-    matrix1_cols = get_num_cols("1")
+    if op == 7 or op == 8:
+        while True:
+        # Generate first matrix (always guaranteed)
+            try:
+                matrix1_rows = get_num_rows("1")
+                matrix1_cols = get_num_cols("1")
+
+                if matrix1_rows == matrix1_cols:
+                    break
+                else:
+                    raise ValueError
+            except ValueError:
+                oper = ""
+                match op:
+                    case 7:
+                        oper = "Inverse"
+                    case 8:
+                        oper = "Determinant"
+                    case _:
+                        print("An error occurred")
+                        sys.exit()
+                print(oper + " requires a square matrix.")
+                print("Please ensure the inputted number of rows = inputted number of columns.")
+    else:
+        matrix1_rows = get_num_rows("1")
+        matrix1_cols = get_num_cols("1")
     matrix1 = input_matrix(matrix1_rows, matrix1_cols, "1")
 
     # Perform operations
@@ -91,14 +110,6 @@ def main():
                 print("\nNon-square matrices do not have determinants!")
             else:
                 print("\nDeterminant of Matrix 1 = " + str(det(matrix1)))
-        case 9:
-            pass
-        case 10:
-            pass
-        case 11:
-            pass
-        case 12:
-            pass
         case _:
             print("Something went wrong!")
             sys.exit()
@@ -287,7 +298,7 @@ def add_rows(m, r1, r2, scale):
     return m
 
 def rref(m):
-    m_ref = ref(m)
+    m = ref(m)
     for row in range(1, len(m)):
         non_zero_col = -1
         for col in range(1, len(m[row])):
@@ -299,7 +310,7 @@ def rref(m):
                 if m[current_row][non_zero_col] != 0:
                     scale = -1 * (m[current_row][non_zero_col])
                     m = add_rows(m, row, current_row, scale)
-    return m_ref
+    return m
 
 def transpose(m):
     new_matrix = []
@@ -314,7 +325,61 @@ def transpose(m):
     return new_matrix
 
 def invert(m):
-    pass
+    augmented = m.copy()
+    cols = len(m[0])
+
+    for row in range(len(augmented)):
+        for col in range(cols):
+            if row == col:
+                augmented[row].append(1)
+            else:
+                augmented[row].append(0)
+
+    current_row = 0
+    # iterate over columns of m
+    for col in range(len(m[0])):
+        # find first non-zero row in column
+        first_non_zero_row = -1
+        for row in range(current_row, len(m)):
+            if augmented[row][col] != 0:
+                first_non_zero_row = row
+                break
+        # if column is in fact non zero
+        if first_non_zero_row > -1:
+            # if non-zero entry is not in current row, swap
+            if current_row != first_non_zero_row:
+                augmented = swap_rows(augmented, current_row, first_non_zero_row)
+            # reduce
+            try:
+                augmented = reduce_row(augmented, current_row)
+            except ValueError:
+                print("An error occurred")
+                sys.exit()
+            # get 0s underneath
+            for row in range(current_row + 1, len(m)):
+                if augmented[row][col] != 0:
+                    scale = -1 * (augmented[row][col])
+                    augmented = add_rows(augmented, current_row, row, scale)
+            current_row += 1
+
+    for row in range(1, len(m)):
+        non_zero_col = -1
+        for col in range(1, len(m[row])):
+            if augmented[row][col] != 0:
+                non_zero_col = col
+                break
+        if non_zero_col > -1:
+            for current_row in range(row):
+                if augmented[current_row][non_zero_col] != 0:
+                    scale = -1 * (augmented[current_row][non_zero_col])
+                    augmented = add_rows(augmented, row, current_row, scale)
+
+    inverse = []
+    for row in range(len(augmented)):
+        new_row = augmented[row][cols::]
+        inverse.append(new_row)
+
+    return inverse
 
 def det(m):
     # base case of 1x1 - determinant is itself
@@ -349,7 +414,7 @@ def det(m):
 
 def print_matrix(m):
     # obtained from https://stackoverflow.com/questions/13214809/pretty-print-2d-list
-    s = [[str(Fraction(e)) for e in row] for row in m]
+    s = [[str(e) for e in row] for row in m]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
     table = [fmt.format(*row) for row in s]
